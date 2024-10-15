@@ -1,4 +1,4 @@
-name: build
+name: trivy 0.28.0
 on:
   push:
     branches:
