@@ -1,0 +1,126 @@
+name: trivy 0.27.0 convert
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Trivy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+          
+      - name: trivy txt
+        uses: aquasecurity/trivy-action@0.27.0
+        with:
+          image-ref: 'ubuntu:latest'
+          format: 'table'
+          output: trivy.txt
+          exit-code: '0'
+
+      - name: summary txt 
+        run: |
+          if [[ -s trivy.txt ]]; then
+            {
+              echo "### txt"
+              echo "<details><summary>Click to expand</summary>"
+              echo ""
+              echo '```terraform'
+              cat trivy.txt
+              echo '```'
+              echo "</details>"
+            } >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: trivy json
+        uses: aquasecurity/trivy-action@0.27.0
+        with:
+          image-ref: 'ubuntu:latest'
+          format: 'json'
+          output: trivy.json
+          exit-code: '0'
+
+      - name: summary json
+        run: |
+          if [[ -s trivy.json ]]; then
+            {
+              echo "### json"
+              echo "<details><summary>Click to expand</summary>"
+              echo ""
+              echo '```terraform'
+              cat trivy.json
+              echo '```'
+              echo "</details>"
+            } >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: trivy sarif
+        uses: aquasecurity/trivy-action@0.27.0
+        with:
+          image-ref: 'ubuntu:latest'
+          format: 'sarif'
+          output: trivy.sarif
+          exit-code: '0'
+    
+      - name: summary sarif
+        run: |
+          if [[ -s trivy.sarif ]]; then
+            {
+              echo "### sarif"
+              echo "<details><summary>Click to expand</summary>"
+              echo ""
+              echo '```terraform'
+              cat trivy.sarif
+              echo '```'
+              echo "</details>"
+            } >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: trivy github
+        uses: aquasecurity/trivy-action@0.27.0
+        with:
+          image-ref: 'ubuntu:latest'
+          format: 'github'
+          output: trivy.github
+          exit-code: '0'
+    
+      - name: summary sarif
+        run: |
+          if [[ -s trivy.github ]]; then
+            {
+              echo "### github"
+              echo "<details><summary>Click to expand</summary>"
+              echo ""
+              echo '```terraform'
+              cat trivy.github
+              echo '```'
+              echo "</details>"
+            } >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: trivy convert txt
+        uses: aquasecurity/trivy-action@0.27.0
+        with:
+          scan-type: 'convert'
+          vuln-type: ""
+          image-ref: 'trivy.json'
+          format: 'table'
+          output: 'trivy-converted.txt'
+
+      - name: trivy convert txt 
+        run: |
+          if [[ -s trivy-converted.txt ]]; then
+            {
+              echo "### converted from json to txt"
+              echo "<details><summary>Click to expand</summary>"
+              echo ""
+              echo '```terraform'
+              cat trivy-converted.txt
+              echo '```'
+              echo "</details>"
+            } >> $GITHUB_STEP_SUMMARY
+          fi
